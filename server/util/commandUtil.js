@@ -43,7 +43,7 @@ function getProcessOptions(command) {
 }
 
 // logs a description of the command
-function logProcessStart(command, processOptions) {
+function logProcessStart(command, processOptions, logger) {
     logger.info("executing command", {
         cmd: command.cmd, 
         cwd: processOptions.cwd, 
@@ -51,11 +51,11 @@ function logProcessStart(command, processOptions) {
     });
 }
 
-async function runCommand(command){
+async function runCommand(command, logger){
 
     let processOptions = getProcessOptions(command);
     if (debug) {
-        logProcessStart(command, processOptions);
+        logProcessStart(command, processOptions, logger);
     }
 
     // report errors only for short-lived processes
@@ -73,17 +73,20 @@ async function runCommand(command){
     return;
 }
 
-function runTerminalCommand(command){
+async function runTerminalCommand(command, logger){
     let processOptions = getProcessOptions(command);
     if (debug) {
-        logProcessStart(command, processOptions);
+        logProcessStart(command, processOptions, logger);
     }
 
     processOptions.stdio = "ignore";
     // returns terminal process, wrapping around the actual process
     try{
         let terminalProcPromise = spawnTerminalProcess(command.cmd, processOptions);
-        terminalProcPromise.unref();
+        if(terminalProcPromise){
+            terminalProcPromise.unref();
+        }
+        terminalProcPromise.catch(logger.error)
     }
     catch(err){
         logger.error(err);
@@ -93,7 +96,7 @@ function runTerminalCommand(command){
 
 // creates a child process based a command received via
 // websocket, sends the process output back over the socket
-function runFeedbackCommand(ws, req) {
+function runFeedbackCommand(ws, req, logger) {
 
     let command;    // command string, working directory, environment variables
     let cmdProcess;   // command child process
@@ -124,7 +127,7 @@ function runFeedbackCommand(ws, req) {
             case "runcmd": {
                 command = msg.command;
                 let sendMessage = msg => ws.send(JSON.stringify(msg));
-                cmdProcess = setupFeedbackProcess(command, sendMessage);
+                cmdProcess = setupFeedbackProcess(command, sendMessage, logger);
                 break;
             }
 
@@ -149,10 +152,10 @@ function runFeedbackCommand(ws, req) {
 
 // creates child process for the given command and
 // hooks the process event handlers to sendMessage 
-function setupFeedbackProcess(command, sendMessage) {
+function setupFeedbackProcess(command, sendMessage, logger) {
 
     let processOptions = getProcessOptions(command);
-    logProcessStart(command, processOptions);
+    logProcessStart(command, processOptions, logger);
 
     let proc;
     try{
@@ -181,7 +184,7 @@ function setupFeedbackProcess(command, sendMessage) {
 }
 
 // opens the given file path or URL with the system's default application
-let openItem = (item) => {
+let openItem = (item, logger) => {
     logger.info("opening item " + item);
     open(item);   // no need to await
 }
@@ -193,7 +196,7 @@ function spawnProcess(commandString, options) {
 }
 
 // runs the given command in a bash inside a terminal
-function spawnTerminalProcess(commandString, options) {
+function spawnTerminalProcess(commandString, options, logger) {
     switch(process.platform){
         case "darwin":
             return execa( 'osascript', ['-e', `tell app "Terminal" to do script "${commandString}"`], options);

@@ -10,6 +10,7 @@ const commandUtil = require('../util/commandUtil.js');
 module.exports = function (settings, state) {
 
   const router = new Router();
+  let logger = settings.logger;
 
   // get content of file at given path
   router.post('/getfile', async (req, res) => {
@@ -29,7 +30,7 @@ module.exports = function (settings, state) {
       fileContent = await readFile(filePath);
     }
     catch (err) {
-      settings.logger.error("getfile: failed to read file", {filePath} );
+      logger.error("getfile: failed to read file", {filePath} );
       res.status(400).send(`Failed to read file at path "${req.body.path}"`);
       return;
     }
@@ -50,7 +51,7 @@ module.exports = function (settings, state) {
 
   // open the item at the given path or URL with the system's default handler
   router.post('/openitem', (req, res) => {
-    commandUtil.openItem(req.body.itempath);
+    commandUtil.openItem(req.body.itempath, logger);
     res.send("ok");
   })
 
@@ -59,10 +60,10 @@ module.exports = function (settings, state) {
 
     let cmd = req.body;
     if(!cmd.io || cmd.io == "terminal"){
-      commandUtil.runTerminalCommand(cmd);
+      commandUtil.runTerminalCommand(cmd, logger);
     }
     else{
-      let err = await commandUtil.runCommand(cmd);
+      let err = await commandUtil.runCommand(cmd, logger);
       if(err){
         res.status(400).send(err);
         return;
@@ -73,7 +74,7 @@ module.exports = function (settings, state) {
 
   // execute command and send its output back
   router.ws('/runfeedbackcmd', async (ws, req) => {
-    commandUtil.runFeedbackCommand(ws, req);
+    commandUtil.runFeedbackCommand(ws, req, logger);
   })
 
   return router;
