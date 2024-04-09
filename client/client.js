@@ -435,9 +435,9 @@ async function fillCellModule(containerDiv, cellName, url) {
   }catch(err){
     createNotification(
       `Failed to load cell <i>${cellName}</i>`,
-      `${htmlEscape(err.toString())}<p><p>See console for details.</p>` 
+      `${htmlEscape(err.toString())}<p>See console for details.</p>` 
     );
-    console.error(err);
+    console.error(`Error while filling cell "${cellName}"`, err);
   }
 }
 
