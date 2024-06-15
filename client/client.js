@@ -809,9 +809,10 @@ async function showConstEditor() {
     }
   });
 }
+
 async function setupCellEditor(pageName, cellId, cellURL) {
 
-  let { text: code } = await fancyFetch(cellURL, {}, FetchType.text);
+  let { text: cellSourceCode } = await fancyFetch(cellURL, {}, FetchType.text);
   let { text: helpContent } = await fancyFetch('./moduleEditorHelp.html', {}, FetchType.text);
 
 
@@ -825,26 +826,31 @@ async function setupCellEditor(pageName, cellId, cellURL) {
     setBody: async (body) => {
       await requireScript("vendor/ace/src-noconflict/ace.js");
       const AceContainerId = "acecontainer";
+      const HelpContentId = "helpcontent";
       body.appendChild(createDomNode(`
       <div class="row" style="height:78vh">
         <div id="${AceContainerId}" class="col-6 border h-100"></div>
-        <div class="col-6 h-100 ps-3">${helpContent}</div>
+        <div id="${HelpContentId}" class="col-6 h-100 ps-3">${helpContent}</div>
       </div>`));
 
       //inject consts into helpContent
-      let constsCodeElem = document.getElementById("helpContentConstsProps");
-      constsCodeElem.innerHTML = JSON.stringify(window.consts, null, '  ');
+      makeHighlighter(
+        document.getElementById("helpContentConstsProps"),
+        "ace/mode/json",
+        JSON.stringify(window.consts, null, '  ')
+      )
 
-      editor = ace.edit(AceContainerId, {
-        mode: "ace/mode/javascript",
-        selectionStyle: "text",
-        fontSize: "12pt",
-        useWorker: false  // syntax checker falsely warns about async
-      });
+      // add highlighting to the help content code listing
+      let helpContentElem = document.getElementById(HelpContentId);
+      let codeListingElems = helpContentElem.querySelectorAll("div[data-code]");
+      //alert(codeListingElems.length);
+      for(let listing of codeListingElems){
+        let code = listing.textContent;
+        listing.textContent = "";
+        makeHighlighter( listing, "ace/mode/javascript", code );
+      }
 
-      editor.session.setUseWrapMode(true);
-      editor.setShowPrintMargin(false);
-      editor.setValue(code, 1); // cursor pos at start
+      editor = makeEditor(AceContainerId, "ace/mode/javascript", cellSourceCode);
     },
     onConfirm: async () => {
       dialog.close();
@@ -865,6 +871,42 @@ async function setupCellEditor(pageName, cellId, cellURL) {
       }
     }
   });
+}
+
+function makeEditor(containerElement, mode, code){
+  // add cell code editor
+  let editor = ace.edit(containerElement, {
+    mode,
+    selectionStyle: "text",
+    fontSize: "12pt",
+    useWorker: false,  // syntax checker falsely warns about async
+    maxLines: Infinity
+  });
+
+  editor.session.setUseWrapMode(true);
+  editor.setShowPrintMargin(false);
+  editor.setValue(code, 1); // cursor pos at start
+  return editor;
+}
+
+function makeHighlighter(containerElement, mode, code){
+  
+  let highlighterElem = document.createElement("div");
+  containerElement.appendChild( highlighterElem );
+  let highlighter = ace.edit(highlighterElem, {
+    mode,
+    fontSize: "12pt",
+    useWorker: false,
+    maxLines: Infinity
+  })
+  highlighter.setValue(code, 1);
+  highlighter.setShowPrintMargin(false);
+  highlighter.setReadOnly(true);
+
+  // this hides the entire gutter: line numbers and folding buttons
+  // to keep the folding buttons, use highlighter.setOption('showLineNumbers', false);
+  highlighter.renderer.setShowGutter(false);
+  highlighter.keyBinding.setDefaultHandler(null) 
 }
 
 async function removeCell(pageName, cellId) {

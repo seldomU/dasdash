@@ -19,7 +19,7 @@
         <p>To simplify content creation and to allow you to run commands on your machine, there is a set of OS and UI helper
             methods. The following code puts a single button in the cell. When clicked, the button opens a confirmation dialog,
             followed by a terminal window that says "hello world".</p>
-        <pre class="p-3 bg-light"><code>import * as ui from '/util/uiComponents.js';
+        <div data-code class="my-3">import * as ui from '/util/uiComponents.js';
         
 export async function createCell(parent){
     
@@ -31,7 +31,7 @@ export async function createCell(parent){
             confirm: true
         }
     );
-}</code></pre>
+}</div>
 
         <h5 class="mt-5">Constants</h5>
         Some values like paths or credentials are relevant to multiple cells. As a way to define them once globally, 
@@ -39,7 +39,7 @@ export async function createCell(parent){
         consts-editor on the bottom of the dashboard sidebar. To reference your consts in the cell source code, use <code>window.consts.MY_CONST</code>. 
         These values are currently defined:
 
-        <pre class="p-3 bg-light"><code id="helpContentConstsProps"></code></pre>
+        <div id="helpContentConstsProps" class="my-2"></div>
         
         <p>For details about the OS interface and UI components, click the tabs above.</p>
     </div>
@@ -51,17 +51,17 @@ export async function createCell(parent){
             make them available.</p>
         <h6 class="mt-5">Send command</h6>
         Runs the given command in a shell.
-        <pre class="p-3 bg-light"><code>os.sendCmd('echo "hello world"')</code></pre>
+        <div data-code class="my-3">os.sendCmd('echo "hello world"')</div>
         <p>Instead of a string, the command can also be defined as an object, like this:</p>
         
-        <pre class="p-3 bg-light"><code>os.sendCmd({
+        <div data-code class="my-3">os.sendCmd({
     cmd: `echo "hello world"`,  // the command and its arguments 
     cwd: "/home/me/Desktop",    // where to execute the command
     env: {},                    // environment variables
     io: "none",                 // don't run command in a terminal
     confirm: true      // show confirmation dialog before execution
 })
-        </code></pre>
+        </div>
         
         All properties other than <code>cmd</code> are optional. By default <code>cwd</code> is inherited from the server
         process, <code>env</code> is empty, <code>io</code> is <code>"terminal"</code> and <code>confirm</code> is
@@ -70,24 +70,24 @@ export async function createCell(parent){
         
         <h6 class="mt-5">Get command result</h6>
         Runs the given command in a shell and returns the command result. The command can be a string or object, same as above.
-        <pre class="p-3 bg-light"><code>let userName = await os.getCmdResult('whoami')</code></pre>
+        <div data-code class="my-3">let userName = await os.getCmdResult('whoami')</div>
         
         <h6 class="mt-5">Send node script</h6>
         This is not a separate feature, just a way to take advantage of the fact that the server is running node.js. We can send 
         node scripts like this:
-        <pre class="p-3 bg-light"><code>    let script = `import { cwd } from 'node:process'
+        <div data-code class="my-3">    let script = `import { cwd } from 'node:process'
 console.log( cwd() );
 `.replace(/"/g, '\\\"');
 
 ...
 
 cmd: `node --input-type=module --eval "${script}"`
-        </code></pre>
+        </div>
         The input-type can also be set to <code>commonjs</code>.
         
         <h6 class="mt-5">Open file</h6>
         Opens the file at the given path with the system default application for that file type.
-        <pre class="p-3 bg-light"><code>os.sendOpenCmd("/home/me/Downloads/foo.pdf")</code></pre>
+        <div data-code class="my-3">os.sendOpenCmd("/home/me/Downloads/foo.pdf")</div>
     </div>
 
     <!-- TAB ui components -->
@@ -98,11 +98,11 @@ cmd: `node --input-type=module --eval "${script}"`
         <h6 class="mt-5">Text</h6>
         <p>Adds simple text, rendered verbatim. HTML formatting is not applied, just displayed. See <code>createDiv()</code> below for
             adding HTML.</p>
-        <pre class="p-3 bg-light"><code>ui.createText( parent, "Hello world" );</code></pre>
+        <div data-code class="my-3">ui.createText( parent, "Hello world" );</div>
 
         <h6 class="mt-5">Button</h6>
         Adds a button, returns the button DOM element.
-        <pre class="p-3 bg-light"><code>ui.createButton( parent, "says hi", () => alert("hi") );
+        <div data-code class="my-3">ui.createButton( parent, "says hi", () => alert("hi") );
 
 ui.createButton( 
     parent, 
@@ -115,7 +115,7 @@ ui.createButton(
         ]
     } 
 )
-</code></pre>
+</div>
         <p>The label argument accepts HTML formatting and can be combined with icons (see below). To allow HTML characters in your label, use <code>ui.htmlEscape("My &lt;label&gt;")</code>. The third argument is a click
         handler function, a good place to use OS interface methods. The forth argument is optional.</p>
         
@@ -124,7 +124,7 @@ ui.createButton(
         
         <h6 class="mt-5">Command button</h6>
         Adds a button that sends a command, returns the button DOM element.
-        <pre class="p-3 bg-light"><code>ui.createCmdButton(
+        <div data-code class="my-3">ui.createCmdButton(
     parent,
     "label",
     'echo "hi"',
@@ -133,30 +133,30 @@ ui.createButton(
         copyCmd: true   // add context menu entry for copying the command string
     }
 );
-</code></pre>
+</div>
         This is a conveniance method for buttons that send commands. The third argument can be a command or a function that
         returns a command. A tooltip describing the command will be generated if none is given.
 
         <h6 class="mt-5">Link button</h6>
         Adds a button that opens a URL in a new tab, returns the button DOM element.
-        <pre class="p-3 bg-light"><code> createLinkButton(
+        <div data-code class="my-3"> createLinkButton(
     parent,
     "label",
     "http://example.com",
     { tip: "Show example page."}
 )
-</code></pre>
+</div>
         This is a conveniance method for buttons that open browser tabs. The third argument can also be a function that returns
         a URL. A tooltip for the URL will be generated if none is given.
 
 
         <h6 class="mt-5">Icon</h6>
         <p>Returns a HTML string of an named icon image. Useful for labels.</p>
-        <pre class="p-3 bg-light"><code>ui.createCmdButton(
+        <div data-code class="my-3">ui.createCmdButton(
     parent,
     ui.iconHTML("link") + "run",
     'echo "hi"'
-);</code></pre>
+);</div>
         <p>Available names are: <img src="/icons/link.svg" /> link,
             <img src="/icons/box-arrow-up-right.svg" /> openFile,
             <img src="/icons/file-earmark.svg" /> file,
@@ -169,7 +169,7 @@ ui.createButton(
 
         <h6 class="mt-5">Dropdown</h6>
         Adds a select input to the cell. Returns a DOM element, wrapping around the input and its label.
-        <pre class="p-3 bg-light"><code>let myDropdown = ui.createDropdown(
+        <div data-code class="my-3">let myDropdown = ui.createDropdown(
     parent,
     "My label",
     [
@@ -188,12 +188,12 @@ ui.createButton(
         style: "float"  // optional, can also be "separate" or "group"
     }
 );
-</code></pre>
+</div>
         Use <code>myDropdown.value</code> to access the selected value. Three different styles of label placement are available.
 
         <h6 class="mt-5">Text input</h6>
         Adds a text input or text area to the cell. Returns a DOM element, wrapping around the input and its label.
-        <pre class="p-3 bg-light"><code>let myInput = ui.createTextInput(
+        <div data-code class="my-3">let myInput = ui.createTextInput(
     parent,
     {
         label: "MyLabel", 
@@ -205,12 +205,12 @@ ui.createButton(
         rows: 3 // optional, for textareas
     }
 );
-</code></pre>
+</div>
         Use <code>myInput.value</code> to access the input value. Three different styles of label placement are available.
 
         <h6 class="mt-5">Number input</h6>
         Adds a number input to the cell. Returns a DOM element, wrapping around the input and its label.
-        <pre class="p-3 bg-light"><code>let myInput = ui.createNumberInput(
+        <div data-code class="my-3">let myInput = ui.createNumberInput(
     parent,
     {
         label: "MyLabel", 
@@ -222,23 +222,23 @@ ui.createButton(
         style: "float"  // optional, can also be "separate" or "group"
     }
 );
-</code></pre>
+</div>
         Use <code>myInput.value</code> to access the input value. Three different styles of label placement are available.
 
         <h6 class="mt-5">Toggle</h6>
         Adds a toggle button to the cell. Returns a DOM element, wrapping around the toggle and its label.
-        <pre class="p-3 bg-light"><code>let myToggle = ui.createSwitch( 
+        <div data-code class="my-3">let myToggle = ui.createSwitch( 
     parent, 
     "my label", 
     myDefaultBool,
     { tip: "toggle tip" }
 );
-</code></pre>
+</div>
         Use <code>myToggle.checked</code> to access the input value.
 
         <h6 class="mt-5">Table</h6>
         Adds a table to the cell. Returns a DOM element, wrapping around the table.
-        <pre class="p-3 bg-light"><code>ui.createTable(
+        <div data-code class="my-3">ui.createTable(
     parent, 
     {
         caption: "People",
@@ -249,16 +249,16 @@ ui.createButton(
         ]
     }
 );
-</code></pre>
+</div>
         Row objects have to contain matching properties for each of the column Names.
 
         <h6 class="mt-5">Notification</h6>
         Shows a notification on the page.
-        <pre class="p-3 bg-light"><code>ui.createNotification("My title", "My content");</code></pre>
+        <div data-code class="my-3">ui.createNotification("My title", "My content");</div>
 
         <h6 class="mt-5">Dropdown button</h6>
         Adds a dropdown button to the cell. Each menu entry has a click handler action. Returns a DOM element, wrapping around the button.
-        <pre class="p-3 bg-light"><code>ui.createDropdownButton( 
+        <div data-code class="my-3">ui.createDropdownButton( 
     parent,
     "menu label",
     [
@@ -275,14 +275,14 @@ ui.createButton(
         tip: "menu tip"    // optional
     }
 );
-</code></pre>
+</div>
 
         The <code>tip</code> value can also
         be function returning a string. It is displayed as tooltip.
 
         <h6 class="mt-5">Accordion</h6>
         Adds an accordion of collapsable sections to the cell. Returns the accordion DOM element.
-        <pre class="p-3 bg-light"><code>ui.createAccordion(
+        <div data-code class="my-3">ui.createAccordion(
     parent,
     [
         {
@@ -292,11 +292,11 @@ ui.createButton(
         }
     ]
 );
-</code></pre>
+</div>
 
         <h6 class="mt-5">Confirmation dialog</h6>
         Opens a dialog and returns <code>true</code> if the user clicks "Ok" and <code>false</code> otherwise.
-        <pre class="p-3 bg-light"><code>let ok = await ui.isConfirmed(
+        <div data-code class="my-3">let ok = await ui.isConfirmed(
     {
         title: "hello",
         setBody: body =&gt; {
@@ -308,14 +308,14 @@ ui.createButton(
         widthClass: "modal-fullscreen" 
     }
 );
-</code></pre>
+</div>
         Other than the title, all properties are optional. See <a
             href="https://getbootstrap.com/docs/5.0/components/modal/#optional-sizes" target="_blank">here</a> for widthClass
         options.
 
         <h6 class="mt-5">Arbitrary HTML</h6>
         <p>Adds the given HTML source to the DOM, wrapped in a div. Use this if no other UI element fits your needs.</p>
-        <pre class="p-3 bg-light"><code>ui.createDiv( parent, "&lt;b&gt;Hello&lt;/b&gt;");</code></pre>
+        <div data-code class="my-3">ui.createDiv( parent, "&lt;b&gt;Hello&lt;/b&gt;");</div>
 
     </div>
 
